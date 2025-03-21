@@ -1,4 +1,4 @@
-#+feature dynamic-literals
+// #+feature dynamic-literals
 
 package emulator
 
@@ -58,6 +58,11 @@ load_cart :: proc(path: string) -> ^Cart {
 	return cart
 }
 
+destroy_cart :: proc(cart: ^Cart) {
+	delete(cart.rom_data)
+	free(cart)
+}
+
 get_title :: proc(header: ^RomHeader) -> string {
 	return strings.string_from_null_terminated_ptr(&header.title[0], 16)
 	// return strings.trim_right(s, "\x00")
@@ -102,6 +107,7 @@ cart_type_name :: proc(rh: ^RomHeader) -> string {
 	return "UNKNOWN"
 }
 
+@(rodata)
 ROM_TYPES: [35]string = {
 	"ROM ONLY",
 	"MBC1",
@@ -141,7 +147,8 @@ ROM_TYPES: [35]string = {
 }
 
 
-LIC_CODE := map[u8]string {
+@(rodata)
+LIC_CODE: []string = {
 	0x00 = "None",
 	0x01 = "Nintendo R&D1",
 	0x08 = "Capcom",

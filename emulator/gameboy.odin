@@ -10,3 +10,8 @@ create_gameboy :: proc() -> ^GameBoy {
 
 	return gb
 }
+
+destroy_gameboy :: proc(gb: ^GameBoy) {
+	destroy_cart(gb.Cart)
+	free(gb)
+}
