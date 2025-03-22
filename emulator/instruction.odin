@@ -10,16 +10,79 @@ Instruction :: struct {
 	fn:    InsProc,
 }
 
-InsProc :: proc(cpu: ^CPU)
+InsProc :: proc(cpu: ^CPU, cart: ^Cart)
 
 
 instructions: [0x100]Instruction = {
 	0x00 = Instruction{type = .IN_NOP, mode = .AM_IMP, fn = ins_nop},
+	0x01 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_BC, fn = ins_ld},
+	0x02 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_BC, reg_2 = .RT_A, fn = ins_ld},
 	0x05 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_B},
+	0x06 = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_B, fn = ins_ld},
+	0x08 = Instruction{type = .IN_LD, mode = .AM_A16_R, reg_2 = .RT_SP, fn = ins_ld},
+	0x0A = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_BC, fn = ins_ld},
 	0x0E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_C, fn = ins_ld},
+
+	// 0x1X
+	0x11 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_DE, fn = ins_ld},
+	0x12 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_DE, reg_2 = .RT_A, fn = ins_ld},
+	0x15 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_D},
+	0x16 = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_D, fn = ins_ld},
+	0x1A = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_DE, fn = ins_ld},
+	0x1E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_E, fn = ins_ld},
+
+	// 0x2X
+	0x21 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_HL, fn = ins_ld},
+	0x22 = Instruction {
+		type = .IN_LD,
+		mode = .AM_HLI_R,
+		reg_1 = .RT_HL,
+		reg_2 = .RT_A,
+		fn = ins_ld,
+	},
+	0x25 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_H},
+	0x26 = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_H, fn = ins_ld},
+	0x2A = Instruction {
+		type = .IN_LD,
+		mode = .AM_R_HLI,
+		reg_1 = .RT_A,
+		reg_2 = .RT_HL,
+		fn = ins_ld,
+	},
+	0x2E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_L, fn = ins_ld},
+
+	// 0x3X
+	0x31 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_SP, fn = ins_ld},
+	0x32 = Instruction {
+		type = .IN_LD,
+		mode = .AM_HLD_R,
+		reg_1 = .RT_HL,
+		reg_2 = .RT_A,
+		fn = ins_ld,
+	},
+	0x35 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_HL},
+	0x36 = Instruction{type = .IN_LD, mode = .AM_MR_D8, reg_1 = .RT_HL, fn = ins_ld},
+	0x3A = Instruction {
+		type = .IN_LD,
+		mode = .AM_R_HLD,
+		reg_1 = .RT_A,
+		reg_2 = .RT_HL,
+		fn = ins_ld,
+	},
+	0x3E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_A, fn = ins_ld},
+
+	// Sample continuation
 	0xAF = Instruction{type = .IN_XOR, mode = .AM_R, reg_1 = .RT_A, fn = ins_xor},
 	0xC3 = Instruction{type = .IN_JP, mode = .AM_D16, fn = ins_jp},
+
+	// 0xE2, 0xEA
+	0xE2 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_C, reg_2 = .RT_A, fn = ins_ld},
+	0xEA = Instruction{type = .IN_LD, mode = .AM_A16_R, reg_2 = .RT_A, fn = ins_ld},
+
+	// 0xF2, 0xF3, 0xFA
+	0xF2 = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_C, fn = ins_ld},
 	0xF3 = Instruction{type = .IN_DI, fn = ins_di},
+	0xFA = Instruction{type = .IN_LD, mode = .AM_R_A16, reg_1 = .RT_A, fn = ins_ld},
 }
 
 instruction_by_opcode :: proc(opcode: u8) -> ^Instruction {
@@ -27,7 +90,7 @@ instruction_by_opcode :: proc(opcode: u8) -> ^Instruction {
 }
 
 @(rodata)
-inst_lookup: []string = {
+inst_lookup := [?]string {
 	"<NONE>",
 	"NOP",
 	"LD",

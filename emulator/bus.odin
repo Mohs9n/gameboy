@@ -33,3 +33,16 @@ bus_write :: proc(cart: ^Cart, address: u16, value: u8) {
 
 	todo()
 }
+
+
+bus_read16 :: proc(cart: ^Cart, address: u16) -> u16 {
+	lo := u16(bus_read(cart, address))
+	hi := u16(bus_read(cart, address + 1))
+
+	return lo | (hi << 8)
+}
+
+bus_write16 :: proc(cart: ^Cart, address, value: u16) {
+	bus_write(cart, address + 1, u8((value >> 8) & 0xFF))
+	bus_write(cart, address, u8(value & 0xFF))
+}

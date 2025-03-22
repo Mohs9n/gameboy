@@ -13,7 +13,9 @@ GameBoy :: struct {
 
 create_gameboy :: proc() -> ^GameBoy {
 	gb := new(GameBoy)
-	gb.cart = load_cart("refs/roms/The_Legend_of_Zelda_Link's_Awakening.gb")
+	// gb.cart = load_cart("refs/roms/The_Legend_of_Zelda_Link's_Awakening.gb")
+	gb.cart = load_cart("refs/roms/Super_Mario_Land.gb")
+	// gb.cart = load_cart("roms/01-special.gb")
 	gb.cpu = cpu_init()
 
 	gb.running = true

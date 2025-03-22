@@ -50,59 +50,68 @@ fetch_instruction :: proc(cpu: ^CPU, cart: ^Cart) {
 }
 
 
-fetch_data :: proc(cpu: ^CPU, cart: ^Cart) {
-	cpu.mem_dest = 0
-	cpu.dest_is_mem = false
+// fetch_data :: proc(cpu: ^CPU, cart: ^Cart) {
+// 	cpu.mem_dest = 0
+// 	cpu.dest_is_mem = false
+//
+// 	if cpu.cur_inst == nil {
+// 		return
+// 	}
+//
+// 	#partial switch cpu.cur_inst.mode {
+// 	case .AM_IMP:
+// 		return
+//
+// 	case .AM_R:
+// 		cpu.fetched_data = cpu_read_reg(cpu, cpu.cur_inst.reg_1)
+// 		return
+//
+// 	case .AM_R_D8:
+// 		cpu.fetched_data = u16(bus_read(cart, cpu.regs.pc))
+// 		emu_cycles(1)
+// 		cpu.regs.pc += 1
+// 		return
+//
+// 	// remove Maybe
+// 	case .AM_A8_R:
+// 		{
+// 			cpu.fetched_data = u16(bus_read(cart, cpu.regs.pc))
+// 			emu_cycles(1)
+// 			cpu.regs.pc += 1
+// 			return
+// 		}
+//
+// 	case .AM_D16:
+// 		{
+// 			lo := u16(bus_read(cart, cpu.regs.pc))
+// 			emu_cycles(1)
+//
+// 			hi := u16(bus_read(cart, cpu.regs.pc + 1))
+// 			emu_cycles(1)
+//
+// 			cpu.fetched_data = lo | (hi << 8)
+//
+// 			cpu.regs.pc += 2
+//
+// 			return
+// 		}
+//
+// 	case:
+// 		fmt.printf("Unknown Addressing Mode! %d (%02X)\n", cpu.cur_inst.mode, cpu.cur_opcode)
+// 		os.exit(-7)
+// 	// return
+// 	}
+// }
 
-	if cpu.cur_inst == nil {
-		return
-	}
 
-	#partial switch cpu.cur_inst.mode {
-	case .AM_IMP:
-		return
-
-	case .AM_R:
-		cpu.fetched_data = cpu_read_reg(cpu, cpu.cur_inst.reg_1)
-		return
-
-	case .AM_R_D8:
-		cpu.fetched_data = u16(bus_read(cart, cpu.regs.pc))
-		emu_cycles(1)
-		cpu.regs.pc += 1
-		return
-
-	case .AM_D16:
-		{
-			lo := u16(bus_read(cart, cpu.regs.pc))
-			emu_cycles(1)
-
-			hi := u16(bus_read(cart, cpu.regs.pc + 1))
-			emu_cycles(1)
-
-			cpu.fetched_data = lo | (hi << 8)
-
-			cpu.regs.pc += 2
-
-			return
-		}
-
-	case:
-		fmt.printf("Unknown Addressing Mode! %d (%02X)\n", cpu.cur_inst.mode, cpu.cur_opcode)
-		os.exit(-7)
-	// return
-	}
-}
-
-
-execute :: proc(cpu: ^CPU) {
+execute :: proc(cpu: ^CPU, cart: ^Cart) {
 	fn := cpu.cur_inst.fn
 
 	if fn == nil {
 		todo()
 	}
 
-	fn(cpu)
+	fn(cpu, cart)
 }
 
 
@@ -131,7 +140,7 @@ cpu_step :: proc(cpu: ^CPU, cart: ^Cart) -> bool {
 			os.exit(-7)
 		}
 
-		execute(cpu)
+		execute(cpu, cart)
 	}
 
 	return true

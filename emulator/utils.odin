@@ -3,8 +3,9 @@ package emulator
 import "core:fmt"
 import "core:os"
 
-todo :: proc() -> ! {
-	panic("NOT YET IMPLEMENTED\n")
+todo :: proc(loc := #caller_location) -> ! {
+	fmt.printf("\nprocedure: %2s\n", loc.procedure)
+	panic("NOT YET IMPLEMENTED\n", loc = loc)
 }
 
 
@@ -72,5 +73,46 @@ cpu_read_reg :: proc(cpu: ^CPU, rt: RegType) -> u16 {
 		return cpu.regs.sp
 	case:
 		return 0
+	}
+}
+
+
+cpu_set_reg :: proc(cpu: ^CPU, rt: RegType, val: u16) {
+	switch rt {
+	case .RT_A:
+		cpu.regs.a = u8(val & 0xFF)
+	case .RT_F:
+		cpu.regs.f = u8(val & 0xFF)
+	case .RT_B:
+		cpu.regs.b = u8(val & 0xFF)
+	case .RT_C:
+		{
+			cpu.regs.c = u8(val & 0xFF)
+		}
+	case .RT_D:
+		cpu.regs.d = u8(val & 0xFF)
+	case .RT_E:
+		cpu.regs.e = u8(val & 0xFF)
+	case .RT_H:
+		cpu.regs.h = u8(val & 0xFF)
+	case .RT_L:
+		cpu.regs.l = u8(val & 0xFF)
+
+	case .RT_AF:
+		cpu.regs.a = u8(reverse(val))
+	case .RT_BC:
+		cpu.regs.b = u8(reverse(val))
+	case .RT_DE:
+		cpu.regs.d = u8(reverse(val))
+	case .RT_HL:
+		{
+			cpu.regs.h = u8(reverse(val))
+		}
+
+	case .RT_PC:
+		cpu.regs.pc = val
+	case .RT_SP:
+		cpu.regs.sp = val
+	case .RT_NONE:
 	}
 }
