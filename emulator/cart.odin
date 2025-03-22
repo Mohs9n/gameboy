@@ -63,6 +63,19 @@ destroy_cart :: proc(cart: ^Cart) {
 	free(cart)
 }
 
+cart_read :: proc(cart: ^Cart, address: u16) -> u8 {
+	//for now just ROM ONLY type supported...
+
+	return cart.rom_data[address]
+}
+
+cart_write :: proc(cart: ^Cart, address: u16, value: u8) {
+	//for now, ROM ONLY...
+
+	todo()
+}
+
+
 get_title :: proc(header: ^RomHeader) -> string {
 	return strings.string_from_null_terminated_ptr(&header.title[0], 16)
 	// return strings.trim_right(s, "\x00")

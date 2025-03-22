@@ -23,4 +23,6 @@ main :: proc() {
 
 	gb := emulator.create_gameboy()
 	defer emulator.destroy_gameboy(gb)
+
+	emulator.run_gameboy(gb)
 }
