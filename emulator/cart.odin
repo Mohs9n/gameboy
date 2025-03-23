@@ -72,7 +72,7 @@ cart_read :: proc(cart: ^Cart, address: u16) -> u8 {
 cart_write :: proc(cart: ^Cart, address: u16, value: u8) {
 	//for now, ROM ONLY...
 
-	todo()
+	// todo()
 }
 
 

@@ -31,8 +31,8 @@ fetch_data :: proc(gb: ^GameBoy) {
 		cpu.regs.pc += 1
 		return
 
-	case .AM_R_D16:
-	case .AM_D16:
+	// case .AM_R_D16:
+	case .AM_R_D16, .AM_D16:
 		{
 			lo := u16(bus_read(gb, cpu.regs.pc))
 			emu_cycles(1)
@@ -122,8 +122,7 @@ fetch_data :: proc(gb: ^GameBoy) {
 		cpu.regs.pc += 1
 		return
 
-	case .AM_A16_R:
-	case .AM_D16_R:
+	case .AM_A16_R, .AM_D16_R:
 		{
 			lo := u16(bus_read(gb, cpu.regs.pc))
 			emu_cycles(1)

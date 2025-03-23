@@ -17,7 +17,7 @@ instructions: [0x100]Instruction = {
 	0x00 = Instruction{type = .IN_NOP, mode = .AM_IMP, fn = ins_nop},
 	0x01 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_BC, fn = ins_ld},
 	0x02 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_BC, reg_2 = .RT_A, fn = ins_ld},
-	0x05 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_B},
+	// 0x05 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_B, fn = ins_dec_r},
 	0x06 = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_B, fn = ins_ld},
 	0x08 = Instruction{type = .IN_LD, mode = .AM_A16_R, reg_2 = .RT_SP, fn = ins_ld},
 	0x0A = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_BC, fn = ins_ld},
@@ -26,12 +26,14 @@ instructions: [0x100]Instruction = {
 	// 0x1X
 	0x11 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_DE, fn = ins_ld},
 	0x12 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_DE, reg_2 = .RT_A, fn = ins_ld},
-	0x15 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_D},
+	// 0x15 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_D, fn = ins_dec_r},
 	0x16 = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_D, fn = ins_ld},
+	0x18 = Instruction{type = .IN_JR, mode = .AM_D8, fn = ins_jr},
 	0x1A = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_DE, fn = ins_ld},
 	0x1E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_E, fn = ins_ld},
 
 	// 0x2X
+	0x20 = Instruction{type = .IN_JR, mode = .AM_D8, cond = .CT_NZ, fn = ins_jr},
 	0x21 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_HL, fn = ins_ld},
 	0x22 = Instruction {
 		type = .IN_LD,
@@ -40,8 +42,9 @@ instructions: [0x100]Instruction = {
 		reg_2 = .RT_A,
 		fn = ins_ld,
 	},
-	0x25 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_H},
+	// 0x25 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_H, fn = ins_dec_r},
 	0x26 = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_H, fn = ins_ld},
+	0x28 = Instruction{type = .IN_JR, mode = .AM_D8, cond = .CT_Z, fn = ins_jr},
 	0x2A = Instruction {
 		type = .IN_LD,
 		mode = .AM_R_HLI,
@@ -52,6 +55,7 @@ instructions: [0x100]Instruction = {
 	0x2E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_L, fn = ins_ld},
 
 	// 0x3X
+	0x30 = Instruction{type = .IN_JR, mode = .AM_D8, cond = .CT_NC, fn = ins_jr},
 	0x31 = Instruction{type = .IN_LD, mode = .AM_R_D16, reg_1 = .RT_SP, fn = ins_ld},
 	0x32 = Instruction {
 		type = .IN_LD,
@@ -60,8 +64,9 @@ instructions: [0x100]Instruction = {
 		reg_2 = .RT_A,
 		fn = ins_ld,
 	},
-	0x35 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_HL},
+	// 0x35 = Instruction{type = .IN_DEC, mode = .AM_R, reg_1 = .RT_HL, fn = ins_dec_r},
 	0x36 = Instruction{type = .IN_LD, mode = .AM_MR_D8, reg_1 = .RT_HL, fn = ins_ld},
+	0x38 = Instruction{type = .IN_JR, mode = .AM_D8, cond = .CT_C, fn = ins_jr},
 	0x3A = Instruction {
 		type = .IN_LD,
 		mode = .AM_R_HLD,
@@ -71,20 +76,128 @@ instructions: [0x100]Instruction = {
 	},
 	0x3E = Instruction{type = .IN_LD, mode = .AM_R_D8, reg_1 = .RT_A, fn = ins_ld},
 
-	// Sample continuation
+	// 0x4X
+	0x40 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_B, fn = ins_ld},
+	0x41 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_C, fn = ins_ld},
+	0x42 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_D, fn = ins_ld},
+	0x43 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_E, fn = ins_ld},
+	0x44 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_H, fn = ins_ld},
+	0x45 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_L, fn = ins_ld},
+	0x46 = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_B, reg_2 = .RT_HL, fn = ins_ld},
+	0x47 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_B, reg_2 = .RT_A, fn = ins_ld},
+	0x48 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_B, fn = ins_ld},
+	0x49 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_C, fn = ins_ld},
+	0x4A = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_D, fn = ins_ld},
+	0x4B = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_E, fn = ins_ld},
+	0x4C = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_H, fn = ins_ld},
+	0x4D = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_L, fn = ins_ld},
+	0x4E = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_C, reg_2 = .RT_HL, fn = ins_ld},
+	0x4F = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_C, reg_2 = .RT_A, fn = ins_ld},
+
+	// 0x5X
+	0x50 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_B, fn = ins_ld},
+	0x51 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_C, fn = ins_ld},
+	0x52 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_D, fn = ins_ld},
+	0x53 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_E, fn = ins_ld},
+	0x54 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_H, fn = ins_ld},
+	0x55 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_L, fn = ins_ld},
+	0x56 = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_D, reg_2 = .RT_HL, fn = ins_ld},
+	0x57 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_D, reg_2 = .RT_A, fn = ins_ld},
+	0x58 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_B, fn = ins_ld},
+	0x59 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_C, fn = ins_ld},
+	0x5A = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_D, fn = ins_ld},
+	0x5B = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_E, fn = ins_ld},
+	0x5C = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_H, fn = ins_ld},
+	0x5D = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_L, fn = ins_ld},
+	0x5E = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_E, reg_2 = .RT_HL, fn = ins_ld},
+	0x5F = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_E, reg_2 = .RT_A, fn = ins_ld},
+
+	// 0x6X
+	0x60 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_B, fn = ins_ld},
+	0x61 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_C, fn = ins_ld},
+	0x62 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_D, fn = ins_ld},
+	0x63 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_E, fn = ins_ld},
+	0x64 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_H, fn = ins_ld},
+	0x65 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_L, fn = ins_ld},
+	0x66 = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_H, reg_2 = .RT_HL, fn = ins_ld},
+	0x67 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_H, reg_2 = .RT_A, fn = ins_ld},
+	0x68 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_B, fn = ins_ld},
+	0x69 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_C, fn = ins_ld},
+	0x6A = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_D, fn = ins_ld},
+	0x6B = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_E, fn = ins_ld},
+	0x6C = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_H, fn = ins_ld},
+	0x6D = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_L, fn = ins_ld},
+	0x6E = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_L, reg_2 = .RT_HL, fn = ins_ld},
+	0x6F = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_L, reg_2 = .RT_A, fn = ins_ld},
+
+	// 0x7X
+	0x70 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_B, fn = ins_ld},
+	0x71 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_C, fn = ins_ld},
+	0x72 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_D, fn = ins_ld},
+	0x73 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_E, fn = ins_ld},
+	0x74 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_H, fn = ins_ld},
+	0x75 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_L, fn = ins_ld},
+	// 0x76 = Instruction{type = .IN_HALT, mode = .AM_IMP, fn = ins_halt},
+	0x77 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_HL, reg_2 = .RT_A, fn = ins_ld},
+	0x78 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_B, fn = ins_ld},
+	0x79 = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_C, fn = ins_ld},
+	0x7A = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_D, fn = ins_ld},
+	0x7B = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_E, fn = ins_ld},
+	0x7C = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_H, fn = ins_ld},
+	0x7D = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_L, fn = ins_ld},
+	0x7E = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_HL, fn = ins_ld},
+	0x7F = Instruction{type = .IN_LD, mode = .AM_R_R, reg_1 = .RT_A, reg_2 = .RT_A, fn = ins_ld},
+
+	// 0xAX
 	0xAF = Instruction{type = .IN_XOR, mode = .AM_R, reg_1 = .RT_A, fn = ins_xor},
+
+	// 0xCX
+	0xC0 = Instruction{type = .IN_RET, mode = .AM_IMP, cond = .CT_NZ, fn = ins_ret},
+	0xC1 = Instruction{type = .IN_POP, mode = .AM_R, reg_1 = .RT_BC, fn = ins_pop},
+	0xC2 = Instruction{type = .IN_JP, mode = .AM_D16, cond = .CT_NZ, fn = ins_jp},
 	0xC3 = Instruction{type = .IN_JP, mode = .AM_D16, fn = ins_jp},
+	0xC4 = Instruction{type = .IN_CALL, mode = .AM_D16, cond = .CT_NZ, fn = ins_call},
+	0xC5 = Instruction{type = .IN_PUSH, mode = .AM_R, reg_1 = .RT_BC, fn = ins_push},
+	0xC7 = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x00, fn = ins_rst},
+	0xC8 = Instruction{type = .IN_RET, mode = .AM_IMP, cond = .CT_Z, fn = ins_ret},
+	0xC9 = Instruction{type = .IN_RET, mode = .AM_IMP, fn = ins_ret},
+	0xCA = Instruction{type = .IN_JP, mode = .AM_D16, cond = .CT_Z, fn = ins_jp},
+	0xCC = Instruction{type = .IN_CALL, mode = .AM_D16, cond = .CT_Z, fn = ins_call},
+	0xCD = Instruction{type = .IN_CALL, mode = .AM_D16, fn = ins_call},
+	0xCF = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x08, fn = ins_rst},
 
-	// 0xEx
-	0xE0 = Instruction{type = .IN_LDH, mode = .AM_A8_R, reg_2 = .RT_A, fn = ins_ldh},
+	// oxDX
+	0xD0 = Instruction{type = .IN_RET, mode = .AM_IMP, cond = .CT_NC, fn = ins_ret},
+	0xD1 = Instruction{type = .IN_POP, mode = .AM_R, reg_1 = .RT_DE, fn = ins_pop},
+	0xD2 = Instruction{type = .IN_JP, mode = .AM_D16, cond = .CT_NC, fn = ins_jp},
+	0xD4 = Instruction{type = .IN_CALL, mode = .AM_D16, cond = .CT_NC, fn = ins_call},
+	0xD5 = Instruction{type = .IN_PUSH, mode = .AM_R, reg_1 = .RT_DE, fn = ins_push},
+	0xD7 = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x10, fn = ins_rst},
+	0xD8 = Instruction{type = .IN_RET, mode = .AM_IMP, cond = .CT_C, fn = ins_ret},
+	0xD9 = Instruction{type = .IN_RETI, mode = .AM_IMP, fn = ins_ret},
+	0xDA = Instruction{type = .IN_JP, mode = .AM_D16, cond = .CT_C, fn = ins_jp},
+	0xDC = Instruction{type = .IN_CALL, mode = .AM_D16, cond = .CT_C, fn = ins_call},
+	0xDF = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x18, fn = ins_rst},
+
+	// 0xEX
+	0xE0 = Instruction{type = .IN_LDH, mode = .AM_A8_R, reg_2 = .RT_A, fn = ins_ld},
+	0xE1 = Instruction{type = .IN_POP, mode = .AM_R, reg_1 = .RT_HL, fn = ins_pop},
 	0xE2 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_C, reg_2 = .RT_A, fn = ins_ld},
+	0xE5 = Instruction{type = .IN_PUSH, mode = .AM_R, reg_1 = .RT_HL, fn = ins_push},
+	0xE7 = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x20, fn = ins_rst},
+	0xE9 = Instruction{type = .IN_JP, mode = .AM_MR, reg_1 = .RT_HL, fn = ins_jp},
 	0xEA = Instruction{type = .IN_LD, mode = .AM_A16_R, reg_2 = .RT_A, fn = ins_ld},
+	0xEF = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x28, fn = ins_rst},
 
-	// 0xFx
-	0xF0 = Instruction{type = .IN_LDH, mode = .AM_R_A8, reg_1 = .RT_A, fn = ins_ldh},
+	// 0xFX
+	0xF0 = Instruction{type = .IN_LDH, mode = .AM_R_A8, reg_1 = .RT_A, fn = ins_ld},
+	0xF1 = Instruction{type = .IN_POP, mode = .AM_R, reg_1 = .RT_AF, fn = ins_pop},
 	0xF2 = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_C, fn = ins_ld},
-	0xF3 = Instruction{type = .IN_DI, fn = ins_di},
+	0xF3 = Instruction{type = .IN_DI, mode = .AM_IMP, fn = ins_di},
+	0xF5 = Instruction{type = .IN_PUSH, mode = .AM_R, reg_1 = .RT_AF, fn = ins_push},
+	0xF7 = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x30, fn = ins_rst},
 	0xFA = Instruction{type = .IN_LD, mode = .AM_R_A16, reg_1 = .RT_A, fn = ins_ld},
+	0xFF = Instruction{type = .IN_RST, mode = .AM_IMP, param = 0x38, fn = ins_rst},
 }
 
 instruction_by_opcode :: proc(opcode: u8) -> ^Instruction {

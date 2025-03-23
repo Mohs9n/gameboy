@@ -71,16 +71,92 @@ ins_ldh :: proc(gb: ^GameBoy) {
 
 
 ins_jp :: proc(gb: ^GameBoy) {
-	if (check_cond(gb.cpu)) {
-		gb.cpu.regs.pc = gb.cpu.fetched_data
-		emu_cycles(1)
-	}
+	goto_addr(gb, gb.cpu.fetched_data, false)
 }
 
 ins_xor :: proc(gb: ^GameBoy) {
 	gb.cpu.regs.a ~= u8(gb.cpu.fetched_data & 0xFF)
 	cpu_set_flags(gb.cpu, gb.cpu.regs.a == 0, 0, 0, 0)
 }
+
+
+ins_jr :: proc(gb: ^GameBoy) {
+	rel := i8((gb.cpu.fetched_data & 0xFF))
+	addr: u16 = gb.cpu.regs.pc + u16(rel)
+	goto_addr(gb, addr, false)
+}
+
+ins_call :: proc(gb: ^GameBoy) {
+	goto_addr(gb, gb.cpu.fetched_data, true)
+}
+
+ins_rst :: proc(gb: ^GameBoy) {
+	goto_addr(gb, u16(gb.cpu.cur_inst.param), true)
+}
+
+ins_ret :: proc(gb: ^GameBoy) {
+	if gb.cpu.cur_inst.cond != .CT_NONE {
+		emu_cycles(1)
+	}
+
+	if check_cond(gb.cpu) {
+		lo: u16 = u16(stack_pop(gb))
+		emu_cycles(1)
+		hi := u16(stack_pop(gb))
+		emu_cycles(1)
+
+		n: u16 = (hi << 8) | lo
+		gb.cpu.regs.pc = n
+
+		emu_cycles(1)
+	}
+}
+
+ins_reti :: proc(gb: ^GameBoy) {
+	gb.cpu.int_master_enabled = true
+	ins_ret(gb)
+}
+
+ins_pop :: proc(gb: ^GameBoy) {
+	lo := u16(stack_pop(gb))
+	emu_cycles(1)
+	hi := u16(stack_pop(gb))
+	emu_cycles(1)
+
+	n := (hi << 8) | lo
+
+	cpu_set_reg(gb.cpu, gb.cpu.cur_inst.reg_1, n)
+
+	if (gb.cpu.cur_inst.reg_1 == .RT_AF) {
+		cpu_set_reg(gb.cpu, gb.cpu.cur_inst.reg_1, n & 0xFFF0)
+	}
+}
+
+ins_push :: proc(gb: ^GameBoy) {
+	hi := (cpu_read_reg(gb.cpu, gb.cpu.cur_inst.reg_1) >> 8) & 0xFF
+	emu_cycles(1)
+	stack_push(gb, u8(hi))
+
+	lo := cpu_read_reg(gb.cpu, gb.cpu.cur_inst.reg_1) & 0xFF
+	emu_cycles(1)
+	stack_push(gb, u8(lo))
+
+	emu_cycles(1)
+}
+
+
+goto_addr :: proc(gb: ^GameBoy, addr: u16, pushpc: bool) {
+	if check_cond(gb.cpu) {
+		if pushpc {
+			emu_cycles(2)
+			stack_push16(gb, gb.cpu.regs.pc)
+		}
+
+		gb.cpu.regs.pc = addr
+		emu_cycles(1)
+	}
+}
+
 
 cpu_set_flags :: proc(cpu: ^CPU, z, n, h, c: i8) {
 	if (z != -1) {

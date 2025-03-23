@@ -71,8 +71,21 @@ cpu_step :: proc(gb: ^GameBoy) -> bool {
 		fetch_instruction(gb)
 		fetch_data(gb)
 
+		// fmt.printf(
+		// 	"%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n",
+		// 	pc,
+		// 	inst_name(cpu.cur_inst.type),
+		// 	cpu.cur_opcode,
+		// 	bus_read(gb, pc + 1),
+		// 	bus_read(gb, pc + 2),
+		// 	cpu.regs.a,
+		// 	cpu.regs.b,
+		// 	cpu.regs.c,
+		// )
+
+
 		fmt.printf(
-			"%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n",
+			"%04X: %-7s (%02X %02X %02X) A: %02X BC: %02X%02X DE: %02X%02X HL: %02X%02X\n",
 			pc,
 			inst_name(cpu.cur_inst.type),
 			cpu.cur_opcode,
@@ -81,6 +94,10 @@ cpu_step :: proc(gb: ^GameBoy) -> bool {
 			cpu.regs.a,
 			cpu.regs.b,
 			cpu.regs.c,
+			cpu.regs.d,
+			cpu.regs.e,
+			cpu.regs.h,
+			cpu.regs.l,
 		)
 
 		if (cpu.cur_inst == nil) {
