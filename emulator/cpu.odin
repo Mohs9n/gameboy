@@ -28,6 +28,7 @@ CPU :: struct {
 	halted:             bool,
 	stepping:           bool,
 	int_master_enabled: bool,
+	ie_register:        u8,
 }
 
 
@@ -43,93 +44,40 @@ destroy_cpu :: proc(cpu: ^CPU) {
 	free(cpu)
 }
 
-fetch_instruction :: proc(cpu: ^CPU, cart: ^Cart) {
-	defer cpu.regs.pc += 1
-	cpu.cur_opcode = bus_read(cart, cpu.regs.pc)
-	cpu.cur_inst = instruction_by_opcode(cpu.cur_opcode)
+fetch_instruction :: proc(gb: ^GameBoy) {
+	defer gb.cpu.regs.pc += 1
+	gb.cpu.cur_opcode = bus_read(gb, gb.cpu.regs.pc)
+	gb.cpu.cur_inst = instruction_by_opcode(gb.cpu.cur_opcode)
 }
 
 
-// fetch_data :: proc(cpu: ^CPU, cart: ^Cart) {
-// 	cpu.mem_dest = 0
-// 	cpu.dest_is_mem = false
-//
-// 	if cpu.cur_inst == nil {
-// 		return
-// 	}
-//
-// 	#partial switch cpu.cur_inst.mode {
-// 	case .AM_IMP:
-// 		return
-//
-// 	case .AM_R:
-// 		cpu.fetched_data = cpu_read_reg(cpu, cpu.cur_inst.reg_1)
-// 		return
-//
-// 	case .AM_R_D8:
-// 		cpu.fetched_data = u16(bus_read(cart, cpu.regs.pc))
-// 		emu_cycles(1)
-// 		cpu.regs.pc += 1
-// 		return
-//
-// 	// remove Maybe
-// 	case .AM_A8_R:
-// 		{
-// 			cpu.fetched_data = u16(bus_read(cart, cpu.regs.pc))
-// 			emu_cycles(1)
-// 			cpu.regs.pc += 1
-// 			return
-// 		}
-//
-// 	case .AM_D16:
-// 		{
-// 			lo := u16(bus_read(cart, cpu.regs.pc))
-// 			emu_cycles(1)
-//
-// 			hi := u16(bus_read(cart, cpu.regs.pc + 1))
-// 			emu_cycles(1)
-//
-// 			cpu.fetched_data = lo | (hi << 8)
-//
-// 			cpu.regs.pc += 2
-//
-// 			return
-// 		}
-//
-// 	case:
-// 		fmt.printf("Unknown Addressing Mode! %d (%02X)\n", cpu.cur_inst.mode, cpu.cur_opcode)
-// 		os.exit(-7)
-// 	// return
-// 	}
-// }
-
-
-execute :: proc(cpu: ^CPU, cart: ^Cart) {
-	fn := cpu.cur_inst.fn
+execute :: proc(gb: ^GameBoy) {
+	fn := gb.cpu.cur_inst.fn
 
 	if fn == nil {
 		todo()
 	}
 
-	fn(cpu, cart)
+	fn(gb)
 }
 
 
-cpu_step :: proc(cpu: ^CPU, cart: ^Cart) -> bool {
+cpu_step :: proc(gb: ^GameBoy) -> bool {
+	cpu := gb.cpu
 
-	if !cpu.halted {
-		pc := cpu.regs.pc
+	if !gb.cpu.halted {
+		pc := gb.cpu.regs.pc
 
-		fetch_instruction(cpu, cart)
-		fetch_data(cpu, cart)
+		fetch_instruction(gb)
+		fetch_data(gb)
 
 		fmt.printf(
 			"%04X: %-7s (%02X %02X %02X) A: %02X B: %02X C: %02X\n",
 			pc,
 			inst_name(cpu.cur_inst.type),
 			cpu.cur_opcode,
-			bus_read(cart, pc + 1),
-			bus_read(cart, pc + 2),
+			bus_read(gb, pc + 1),
+			bus_read(gb, pc + 2),
 			cpu.regs.a,
 			cpu.regs.b,
 			cpu.regs.c,
@@ -140,8 +88,17 @@ cpu_step :: proc(cpu: ^CPU, cart: ^Cart) -> bool {
 			os.exit(-7)
 		}
 
-		execute(cpu, cart)
+		execute(gb)
 	}
 
 	return true
+}
+
+
+cpu_get_ie_register :: proc(cpu: ^CPU) -> u8 {
+	return cpu.ie_register
+}
+
+cpu_set_ie_register :: proc(cpu: ^CPU, n: u8) {
+	cpu.ie_register = n
 }

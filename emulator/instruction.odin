@@ -10,7 +10,7 @@ Instruction :: struct {
 	fn:    InsProc,
 }
 
-InsProc :: proc(cpu: ^CPU, cart: ^Cart)
+InsProc :: proc(gb: ^GameBoy)
 
 
 instructions: [0x100]Instruction = {
@@ -75,11 +75,13 @@ instructions: [0x100]Instruction = {
 	0xAF = Instruction{type = .IN_XOR, mode = .AM_R, reg_1 = .RT_A, fn = ins_xor},
 	0xC3 = Instruction{type = .IN_JP, mode = .AM_D16, fn = ins_jp},
 
-	// 0xE2, 0xEA
+	// 0xEx
+	0xE0 = Instruction{type = .IN_LDH, mode = .AM_A8_R, reg_2 = .RT_A, fn = ins_ldh},
 	0xE2 = Instruction{type = .IN_LD, mode = .AM_MR_R, reg_1 = .RT_C, reg_2 = .RT_A, fn = ins_ld},
 	0xEA = Instruction{type = .IN_LD, mode = .AM_A16_R, reg_2 = .RT_A, fn = ins_ld},
 
-	// 0xF2, 0xF3, 0xFA
+	// 0xFx
+	0xF0 = Instruction{type = .IN_LDH, mode = .AM_R_A8, reg_1 = .RT_A, fn = ins_ldh},
 	0xF2 = Instruction{type = .IN_LD, mode = .AM_R_MR, reg_1 = .RT_A, reg_2 = .RT_C, fn = ins_ld},
 	0xF3 = Instruction{type = .IN_DI, fn = ins_di},
 	0xFA = Instruction{type = .IN_LD, mode = .AM_R_A16, reg_1 = .RT_A, fn = ins_ld},

@@ -9,6 +9,7 @@ GameBoy :: struct {
 	ticks:   u64,
 	cart:    ^Cart,
 	cpu:     ^CPU,
+	ram:     ^Ram,
 }
 
 create_gameboy :: proc() -> ^GameBoy {
@@ -17,6 +18,7 @@ create_gameboy :: proc() -> ^GameBoy {
 	gb.cart = load_cart("refs/roms/Super_Mario_Land.gb")
 	// gb.cart = load_cart("roms/01-special.gb")
 	gb.cpu = cpu_init()
+	gb.ram = init_ram()
 
 	gb.running = true
 	gb.paused = false
@@ -32,7 +34,7 @@ run_gameboy :: proc(gb: ^GameBoy) {
 			continue
 		}
 
-		if !cpu_step(gb.cpu, gb.cart) {
+		if !cpu_step(gb) {
 			fmt.printf("CPU Stopped\n")
 			return
 		}
@@ -45,6 +47,7 @@ run_gameboy :: proc(gb: ^GameBoy) {
 destroy_gameboy :: proc(gb: ^GameBoy) {
 	destroy_cart(gb.cart)
 	destroy_cpu(gb.cpu)
+	destroy_ram(gb.ram)
 	free(gb)
 }
 

@@ -4,29 +4,31 @@ import "core:fmt"
 import "core:os"
 
 
-ins_none :: proc(cpu: ^CPU, cart: ^Cart) {
+ins_none :: proc(gb: ^GameBoy) {
 	fmt.printf("INVALID INSTRUCTION!\n")
 	os.exit(-7)
 }
 
-ins_nop :: proc(cpu: ^CPU, cart: ^Cart) {
+ins_nop :: proc(gb: ^GameBoy) {
 
 }
 
-ins_di :: proc(cpu: ^CPU, cart: ^Cart) {
-	cpu.int_master_enabled = false
+ins_di :: proc(gb: ^GameBoy) {
+	gb.cpu.int_master_enabled = false
 }
 
-ins_ld :: proc(cpu: ^CPU, cart: ^Cart) {
-	if cpu.dest_is_mem {
+ins_ld :: proc(gb: ^GameBoy) {
+	cpu := gb.cpu
+
+	if gb.cpu.dest_is_mem {
 		//LD (BC), A for instance...
 
-		if cpu.cur_inst.reg_2 >= .RT_AF {
+		if gb.cpu.cur_inst.reg_2 >= .RT_AF {
 			//if 16 bit register...
 			emu_cycles(1)
-			bus_write16(cart, cpu.mem_dest, cpu.fetched_data)
+			bus_write16(gb, cpu.mem_dest, cpu.fetched_data)
 		} else {
-			bus_write(cart, cpu.mem_dest, u8(cpu.fetched_data))
+			bus_write(gb, cpu.mem_dest, u8(cpu.fetched_data))
 		}
 
 		return
@@ -57,16 +59,27 @@ ins_ld :: proc(cpu: ^CPU, cart: ^Cart) {
 }
 
 
-ins_jp :: proc(cpu: ^CPU, cart: ^Cart) {
-	if (check_cond(cpu)) {
-		cpu.regs.pc = cpu.fetched_data
+ins_ldh :: proc(gb: ^GameBoy) {
+	if (gb.cpu.cur_inst.reg_1 == .RT_A) {
+		cpu_set_reg(gb.cpu, gb.cpu.cur_inst.reg_1, u16(bus_read(gb, 0xFF00 | gb.cpu.fetched_data)))
+	} else {
+		bus_write(gb, 0xFF00 | gb.cpu.fetched_data, gb.cpu.regs.a)
+	}
+
+	emu_cycles(1)
+}
+
+
+ins_jp :: proc(gb: ^GameBoy) {
+	if (check_cond(gb.cpu)) {
+		gb.cpu.regs.pc = gb.cpu.fetched_data
 		emu_cycles(1)
 	}
 }
 
-ins_xor :: proc(cpu: ^CPU, cart: ^Cart) {
-	cpu.regs.a ~= u8(cpu.fetched_data & 0xFF)
-	cpu_set_flags(cpu, cpu.regs.a == 0, 0, 0, 0)
+ins_xor :: proc(gb: ^GameBoy) {
+	gb.cpu.regs.a ~= u8(gb.cpu.fetched_data & 0xFF)
+	cpu_set_flags(gb.cpu, gb.cpu.regs.a == 0, 0, 0, 0)
 }
 
 cpu_set_flags :: proc(cpu: ^CPU, z, n, h, c: i8) {
