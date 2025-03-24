@@ -59,13 +59,13 @@ cpu_read_reg :: proc(cpu: ^CPU, rt: RegType) -> u16 {
 		return u16(cpu.regs.l)
 
 	case .RT_AF:
-		return reverse(u16(cpu.regs.a))
+        return (u16(cpu.regs.a) << 8) | u16(cpu.regs.f)
 	case .RT_BC:
-		return reverse(u16(cpu.regs.b))
+		return (u16(cpu.regs.b) << 8) | u16(cpu.regs.c)
 	case .RT_DE:
-		return reverse(u16(cpu.regs.d))
+		return (u16(cpu.regs.d) << 8) | u16(cpu.regs.e)
 	case .RT_HL:
-		return reverse(u16(cpu.regs.h))
+		return (u16(cpu.regs.h) << 8) | u16(cpu.regs.l)
 
 	case .RT_PC:
 		return cpu.regs.pc
@@ -86,9 +86,7 @@ cpu_set_reg :: proc(cpu: ^CPU, rt: RegType, val: u16) {
 	case .RT_B:
 		cpu.regs.b = u8(val & 0xFF)
 	case .RT_C:
-		{
-			cpu.regs.c = u8(val & 0xFF)
-		}
+		cpu.regs.c = u8(val & 0xFF)
 	case .RT_D:
 		cpu.regs.d = u8(val & 0xFF)
 	case .RT_E:
@@ -97,22 +95,23 @@ cpu_set_reg :: proc(cpu: ^CPU, rt: RegType, val: u16) {
 		cpu.regs.h = u8(val & 0xFF)
 	case .RT_L:
 		cpu.regs.l = u8(val & 0xFF)
-
 	case .RT_AF:
-		cpu.regs.a = u8(reverse(val))
+		cpu.regs.a = u8(val >> 8)
+		cpu.regs.f = u8(val & 0xFF)
 	case .RT_BC:
-		cpu.regs.b = u8(reverse(val))
+		cpu.regs.b = u8(val >> 8)
+		cpu.regs.c = u8(val & 0xFF)
 	case .RT_DE:
-		cpu.regs.d = u8(reverse(val))
+		cpu.regs.d = u8(val >> 8)
+		cpu.regs.e = u8(val & 0xFF)
 	case .RT_HL:
-		{
-			cpu.regs.h = u8(reverse(val))
-		}
-
+		cpu.regs.h = u8(val >> 8)
+		cpu.regs.l = u8(val & 0xFF)
 	case .RT_PC:
 		cpu.regs.pc = val
 	case .RT_SP:
 		cpu.regs.sp = val
 	case .RT_NONE:
+		fmt.printf("Warning: RT_NONE case encountered\n")
 	}
 }
